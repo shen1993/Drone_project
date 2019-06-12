@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import math
 
-# A Program that displays drone routes and LIDAR scans
+# A class that displays drone routes and LIDAR scans
 class Display:
 
     lidar_points_list = []

@@ -1,4 +1,5 @@
 from Display import Display
+from Mapping import Mapping
 import sys
 
 
@@ -9,27 +10,43 @@ def str_to_bool(s):
     elif s == 'False':
          return False
     else:
-         raise ValueError("Cannot covert '{}' to a bool. arg1 should only be either 'True' or 'False'".format(s))
+         raise ValueError("Cannot covert '{}' to a bool. arg2 should only be either 'True' or 'False'".format(s))
 
+# The Display method
+def display():
+    is_test_mode = str_to_bool(sys.argv[2])
 
-# Check if all arguments are typed in and run the program
-try:
-    if sys.argv[1]:
-        is_test_mode = str_to_bool(sys.argv[1])
+    if sys.argv[3] == 'all':
+        scan_ID = sys.argv[3]
+    elif int(sys.argv[3]) in range(0, 33):
+        scan_ID = sys.argv[3]
     else:
-        is_test_mode = False
-
-    if sys.argv[2] == 'all':
-        scan_ID = sys.argv[2]
-    elif int(sys.argv[2]) in range(0, 33):
-        scan_ID = sys.argv[2]
-    else:
-        raise ValueError("Please fill in the second argument with the correct scan ID or 'all' to display all scans")
+        raise ValueError(
+            "Please fill in the third argument with the correct scan ID or 'all' to display all scans")
 
     ds = Display(is_test_mode, scan_ID)
     ds.loadFiles()
     ds.convert_files()
     ds.print_scans()
 
+# the Mapping method
+def mapping():
+    is_test_mode = str_to_bool(sys.argv[2])
+
+    map = Mapping(is_test_mode)
+    map.draw_lines()
+    map.grouping()
+    map.print_scans()
+    map.output_result()
+
+# Check if all arguments are typed in and run the program
+try:
+    if sys.argv[1] == 'Display':
+        display()
+    elif sys.argv[1] == 'Mapping':
+        mapping()
+    else:
+        raise ValueError("Please fill in the first argument with 'Display' or 'Mapping'")
+
 except IndexError:
-    print("Please fill in all the arguments to continue.")
+    print("Please fill in all the required arguments to continue.")

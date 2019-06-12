@@ -2,14 +2,16 @@ from Display import Display
 import matplotlib.pyplot as plt
 import math
 
+# A class that generates a Mapping file given LIDARPoints and FlightPath data
 class Mapping:
 
     test_mode = False
     transferred_points_list = []
     min_distance = 0.2
     min_deviation = 0.001
+    min_line_deviation = 0.005
 
-    def __init__(self, test_mode=True):
+    def __init__(self, test_mode=False):
         print("Initiated Mapping, test mode = {}".format(test_mode))
         self.test_mode = test_mode
         ds = Display()
@@ -17,6 +19,7 @@ class Mapping:
         ds.convert_files()
         self.transferred_points_list = ds.transferred_points_list
 
+    # check if two lines are on the same x/y axis
     def x_continuous_judgement(self, prev_x, prev_y, curr_x, curr_y):
         if abs(prev_x - curr_x) < self.min_distance and abs(prev_y - curr_y) < self.min_deviation:
             return True
@@ -29,6 +32,7 @@ class Mapping:
         else:
             return False
 
+    # sort two lines based on their positions
     def x_sort_points(self, x1, y1, x2, y2):
         if x1 < x2:
             return ([(x1, y1), (x2, y2)])
@@ -41,6 +45,7 @@ class Mapping:
         else:
             return ([(x2, y2), (x1, y1)])
 
+    # update the start/end points of new merged lines
     def x_update_start(self, x1, y1, x2, y2):
         if x1 < x2:
             return (x1, y1)
@@ -70,6 +75,7 @@ class Mapping:
     y_lines = []
     scattered_list = []
 
+    # try to find relation between new dots and existing lines/scattered dots
     def find_relation(self, x, y):
         # initialize
         if not self.x_lines and not self.y_lines and not self.scattered_list:
@@ -115,11 +121,11 @@ class Mapping:
                         found_match = True
                         break
 
-            # if no relation found, add to the scatter list
+            # if no relation found, add to the scattered list
             if not found_match:
                 self.scattered_list.append((x, y))
 
-
+    # draw lines based on the scanned dots provided
     def draw_lines(self):
         for scan in self.transferred_points_list:
             for (x, y) in scan:
@@ -128,6 +134,7 @@ class Mapping:
             print(self.x_lines)
             print(self.y_lines)
 
+    # check if two lines are overlapping; if yes then return the new line; return False otherwise
     def x_overlap(self, line1, line2):
         line1_x1 = float(line1[0][0])
         line1_y1 = float(line1[0][1])
@@ -162,12 +169,13 @@ class Mapping:
             return False
         elif line2_y1 > line1_y2 and line2_y2 > line1_y2:
             return False
-        elif abs(line1_x1 - line2_x2) > 0.005:
+        elif abs(line1_x1 - line2_x2) > self.min_line_deviation:
             return False
         else:
             x_mean = (line1_x1 + line1_x2 + line2_x1 + line2_x2) / 4
             return [(x_mean, min(line1_y1, line2_y1)), (x_mean, max(line1_y2, line2_y2))]
 
+    # merge lines that are overlapping
     def x_merging(self, lines):
         for i, line1 in enumerate(lines):
             for j, line2 in enumerate(lines):
@@ -184,6 +192,7 @@ class Mapping:
                         return self.y_overlap(line1, line2), i, j
         return [], i, j
 
+    # a filter that dumps single dots
     def dot_filter(self):
         temp_list = []
         for line in self.x_lines:
@@ -195,6 +204,7 @@ class Mapping:
                 temp_list.append(line)
         self.y_lines = temp_list
 
+    # algorithm that merges overlapped lines
     def grouping(self):
         while True:
             new_line, i, j = self.x_merging(self.x_lines)
@@ -210,8 +220,10 @@ class Mapping:
             del self.y_lines[j]
             del self.y_lines[i]
             self.y_lines.append(new_line)
+
         self.dot_filter()
 
+    # visualize the Mapping result
     def print_scans(self):
 
         plt.figure(0)
@@ -230,9 +242,11 @@ class Mapping:
         plt.title('Mapping for the room')
         plt.show()
 
+    # round up the centimeter floats to milimeter ints
     def round_up_milimeter(self, n1, n2, n3, n4):
         return int(n1 * 100), int(n2 * 100), int(n3 * 100), int(n4 * 100)
 
+    # method that write the result to Mapping.csv
     def output_result(self):
         with open('Mapping.csv', 'w') as f:
             for line in self.x_lines:
@@ -242,8 +256,3 @@ class Mapping:
                 xs, xe, ys, ye = self.round_up_milimeter(line[0][0], line[0][1], line[1][0], line[1][1])
                 f.write("xstart: {} ystart: {} xend: {} yend: {}\n".format(xs, xe, ys, ye))
 
-map = Mapping()
-map.draw_lines()
-map.grouping()
-map.print_scans()
-map.output_result()
