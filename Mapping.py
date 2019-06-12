@@ -12,7 +12,7 @@ class Mapping:
     min_line_deviation = 0.005
 
     def __init__(self, test_mode=False):
-        print("Initiated Mapping, test mode = {}".format(test_mode))
+        print("Initializing Mapping, test mode = {}".format(test_mode))
         self.test_mode = test_mode
         ds = Display()
         ds.loadFiles()
