@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import math
-import sys
 
 # A Program that displays drone routes and LIDAR scans
 class Display:
@@ -81,13 +80,13 @@ class Display:
         x_path = []
         y_path = []
 
-        if scan_ID != 'all':
-            for (x, y) in self.transferred_points_list[int(scan_ID)]:
+        if self.scan_ID != 'all':
+            for (x, y) in self.transferred_points_list[int(self.scan_ID)]:
                 x_curr_list.append(x)
                 y_curr_list.append(y)
 
-            x_path.append(float(self.drone_path_list[int(scan_ID)][0]))
-            y_path.append(float(self.drone_path_list[int(scan_ID)][1]))
+            x_path.append(float(self.drone_path_list[int(self.scan_ID)][0]))
+            y_path.append(float(self.drone_path_list[int(self.scan_ID)][1]))
 
         else:
             for s in self.drone_path_list:
@@ -110,33 +109,3 @@ class Display:
         plt.title('Drone Route Display')
         plt.show()
 
-# A String to Boolean method
-def str_to_bool(s):
-    if s == 'True':
-         return True
-    elif s == 'False':
-         return False
-    else:
-         raise ValueError("Cannot covert '{}' to a bool. arg1 should only be either 'True' or 'False'".format(s))
-
-# Check if all arguments are typed in and run the program
-try:
-    if sys.argv[1]:
-        is_test_mode = str_to_bool(sys.argv[1])
-    else:
-        is_test_mode = False
-
-    if sys.argv[2] == 'all':
-        scan_ID = sys.argv[2]
-    elif int(sys.argv[2]) in range(0, 33):
-        scan_ID = sys.argv[2]
-    else:
-        raise ValueError("Please fill in the second argument with the correct scan ID or 'all' to display all scans")
-
-    ds = Display(is_test_mode)
-    ds.loadFiles()
-    ds.convert_files()
-    ds.print_scans()
-
-except IndexError:
-    print("Please fill in all the arguments to continue.")
