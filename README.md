@@ -3,6 +3,8 @@ This is a program that handles drone-related problems. The program contains main
 2) Mapping of the room plan based on data from LIDARPoints.csv and Flightpath.csv.
 
 To run the Display program, simply use "python SCVL.py Display TEST_MODE_BOOL SCAN_ID" command.
+* If you do not have matplotlib in your python library please run "python -m pip install -U matplotlib" before proceed.
+
 
 Detailed explanation: 
 1) The first argument must be correctly spelled as Display (case sensitive);
