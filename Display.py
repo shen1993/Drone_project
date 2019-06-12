@@ -10,7 +10,7 @@ class Display:
     scan_ID = 'all'
 
     def __init__(self, test_mode = False, scan_ID = 'all'):
-        print("Initiated, test mode = {}".format(test_mode))
+        print("Initiated Display, test mode = {}".format(test_mode))
         self.test_mode = test_mode
         self.scan_ID = scan_ID
 
