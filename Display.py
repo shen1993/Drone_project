@@ -8,10 +8,12 @@ class Display:
     lidar_points_list = []
     drone_path_list = []
     test_mode = False
+    scan_ID = 'all'
 
-    def __init__(self, test_mode = False):
+    def __init__(self, test_mode = False, scan_ID = 'all'):
         print("Initiated, test mode = {}".format(test_mode))
         self.test_mode = test_mode
+        self.scan_ID = scan_ID
 
     def loadFiles(self):
         # load LIDARPoints
@@ -73,21 +75,35 @@ class Display:
         x_list = []
         y_list = []
 
-        for i, s in enumerate(self.transferred_points_list):
-            for (x, y) in s:
-                x_list.append(x)
-                y_list.append(y)
+        x_curr_list = []
+        y_curr_list = []
 
         x_path = []
         y_path = []
 
-        for i, s in enumerate(self.drone_path_list):
-            x_path.append(float(s[0]))
-            y_path.append(float(s[1]))
+        if scan_ID != 'all':
+            for (x, y) in self.transferred_points_list[int(scan_ID)]:
+                x_curr_list.append(x)
+                y_curr_list.append(y)
+
+            x_path.append(float(self.drone_path_list[int(scan_ID)][0]))
+            y_path.append(float(self.drone_path_list[int(scan_ID)][1]))
+
+        else:
+            for s in self.drone_path_list:
+                x_path.append(float(s[0]))
+                y_path.append(float(s[1]))
+
+        for s in self.transferred_points_list:
+            for (x, y) in s:
+                x_list.append(x)
+                y_list.append(y)
 
         # plotting the points
-        plt.scatter(x_list, y_list, s=2)
-        plt.plot(x_path, y_path, 'r')
+        plt.scatter(x_list, y_list, s=2, color = 'cornflowerblue')
+        plt.scatter(x_curr_list, y_curr_list, s=2, color = 'b')
+        plt.scatter(x_path, y_path, s=10, color = 'r')
+        plt.plot(x_path, y_path, 'orangered')
 
         plt.xlabel('x - axis')
         plt.ylabel('y - axis')
@@ -109,6 +125,13 @@ try:
         is_test_mode = str_to_bool(sys.argv[1])
     else:
         is_test_mode = False
+
+    if sys.argv[2] == 'all':
+        scan_ID = sys.argv[2]
+    elif int(sys.argv[2]) in range(0, 33):
+        scan_ID = sys.argv[2]
+    else:
+        raise ValueError("Please fill in the second argument with the correct scan ID or 'all' to display all scans")
 
     ds = Display(is_test_mode)
     ds.loadFiles()
