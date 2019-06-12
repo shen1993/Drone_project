@@ -36,8 +36,8 @@ def mapping():
     map = Mapping(is_test_mode)
     map.draw_lines()
     map.grouping()
-    map.print_scans()
     map.output_result()
+    map.print_scans()
 
 # Check if all arguments are typed in and run the program
 try:
